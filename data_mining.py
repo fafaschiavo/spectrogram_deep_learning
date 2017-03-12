@@ -55,7 +55,8 @@ spotify.trace=False
 
 genre_string = ['black-metal']
 recommendations_genres = spotify.recommendations(seed_genres=genre_string, limit=100)
-print recommendations_genres[0]
+print recommendations_genres['tracks'][0]['id']
+print recommendations_genres['tracks'][0]['preview_url']
 
 
 
