@@ -12,7 +12,7 @@ def graph_spectrogram(wav_file):
     pylab.subplot(111)
     pylab.title('spectrogram of %r' % wav_file)
     pylab.specgram(sound_info, Fs=frame_rate)
-    pylab.savefig('spectrogram5.png')
+    pylab.savefig('spectrogram4.png')
 
 
 def get_wav_info(wav_file):
@@ -28,7 +28,7 @@ def get_wav_info(wav_file):
     return sound_info, frame_rate
 
 
-wav_file = 'track_test5.wav'
+wav_file = 'track_test4.wav'
 graph_spectrogram(wav_file)
 
 
