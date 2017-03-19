@@ -4,9 +4,12 @@ from random import shuffle
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
+import time
 
 from sklearn import datasets, svm, metrics
 from sklearn.datasets import load_sample_image
+
+start_time = time.time()
 
 data_target = []
 data = []
@@ -16,9 +19,10 @@ folder_name = 'black-metal'
 files = os.listdir(folder_name + '/')
 
 amount_done = 0
-for image in files[:5]:
+for image in files[:500]:
 	new_image = mpimg.imread(folder_name + '/' + image)
-	data.append(new_image)
+	cropped_image = new_image[150:1065][240:400]
+	data.append(cropped_image)
 	data_target.append(int_code)
 	amount_done = amount_done + 1
 	print str(amount_done) + ' - ' + folder_name
@@ -29,9 +33,10 @@ files = os.listdir(folder_name + '/')
 # print files
 
 amount_done = 0
-for image in files[:5]:
+for image in files[:500]:
 	new_image = mpimg.imread(folder_name + '/' + image)
-	data.append(new_image)
+	cropped_image = new_image[150:1065][240:400]
+	data.append(cropped_image)
 	data_target.append(int_code)
 	amount_done = amount_done + 1
 	print str(amount_done) + ' - ' + folder_name
@@ -60,12 +65,20 @@ testing_data = data_shuf[n_samples/2:]
 target_data = data_target_shuf[:n_samples/2]
 testing_target_data = data_target_shuf[n_samples/2:]
 
+# learning_data = data_shuf[:5]
+# testing_data = data_shuf[5:]
+
+# target_data = data_target_shuf[:5]
+# testing_target_data = data_target_shuf[5:]
+
 
 
 
 
 classifier = svm.SVC(gamma=0.001, verbose=True)
+print 'Fitting...'
 classifier.fit(learning_data, target_data)
+print 'Predicting...'
 predicted_data = classifier.predict(testing_data)
 
 error_counter = 0
@@ -82,16 +95,16 @@ print 'Porcentagem de erros - ' + str(accuracy*100) + '%'
 accuracy = 100 - (accuracy*100)
 print 'Porcentagem de acertos - ' + str(accuracy) + '%'
 
-
+# print 'Now saving classifier...'
 # save the classifier
-with open('classifiers/my_dumped_classifier_0001_30.pkl', 'wb') as file_to_save:
-    cPickle.dump(classifier, file_to_save)
+# with open('classifiers/my_dumped_classifier_001_100.pkl', 'wb') as file_to_save:
+#     cPickle.dump(classifier, file_to_save)
     
-print 'Save completed'
+# print 'Save completed'
 
 
 
 
-
+print("--- %s seconds ---" % (time.time() - start_time))
 
 
