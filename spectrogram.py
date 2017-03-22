@@ -13,7 +13,7 @@ def graph_spectrogram(wav_file, spectrogram_file_name, spectrogram_folder_name):
     my_subplot.set_yscale('symlog')
     my_subplot.set_ylim(bottom=20, top=10000)
     pylab.title('spectrogram of %r' % wav_file)
-    pxx,  freq, t, cax = pylab.specgram(sound_info, Fs=frame_rate, NFFT=4096)
+    pxx,  freq, t, cax = pylab.specgram(sound_info, Fs=frame_rate, NFFT=8192) #NFFT 4096
     fig.colorbar(cax).set_label('Intensity [dB]')
     pylab.savefig(spectrogram_folder_name + '/' + spectrogram_file_name + '.png')
     pylab.close('all')
@@ -35,13 +35,13 @@ def get_wav_info(wav_file):
     print number_of_channels
     print sample_width
     wav.close()
-    return sound_info[1000000:1160000], frame_rate
-    # return sound_info, frame_rate
+    # return sound_info[1000000:1160000], frame_rate
+    return sound_info, frame_rate
 
 
 wav_file = 'samba/3JAnxdVlMLo27vasMzMdPk.wav'
 # wav_file = 'samba/metal.wav'
-graph_spectrogram(wav_file, 'wav_file_test_samba_4s', 'samba')
+graph_spectrogram(wav_file, 'samba_tuning_spectrogram', 'samba')
 
 
 
