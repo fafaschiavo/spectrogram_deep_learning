@@ -9,34 +9,87 @@ import time
 from sklearn import datasets, svm, metrics
 from sklearn.datasets import load_sample_image
 
+def get_conversion_grayscale(new_image):
+	a = np.array([new_image[148][1515][:3], new_image[606][1515][:3], new_image[1065][1515][:3]])
+	b = np.array([1, 0.5, 0])
+	x = np.linalg.solve(a, b)
+	return x
+
+def convert_to_greyscale(cropped_image, conversion_array):
+	# converted_cropped_image = np.zeros(shape=(1,1166))
+	print cropped_image.shape
+	converted_cropped_image = np.random.rand(cropped_image.shape[0], cropped_image.shape[1])
+	line_counter = 0
+	row_counter = 0
+	for line in cropped_image:
+		row_counter = 0
+		for pixel in line:
+			new_pixel = pixel[0]*conversion_array[0] + pixel[1]*conversion_array[1] + pixel[2]*conversion_array[2]
+			new_pixel = int(new_pixel*255)
+			converted_cropped_image[line_counter][row_counter] = new_pixel
+			row_counter = row_counter + 1
+		line_counter = line_counter + 1
+
+	return converted_cropped_image
+
+def rgb2gray(cropped_image, conversion_array):
+
+    r, g, b = cropped_image[:,:,0], cropped_image[:,:,1], cropped_image[:,:,2]
+    gray = conversion_array[0] * r + conversion_array[1] * g + conversion_array[2] * b
+
+    return gray
+
 start_time = time.time()
 
 data_target = []
 data = []
 
 int_code = 0
-folder_name = 'black-metal'
+folder_name = 'tango'
 files = os.listdir(folder_name + '/')
+for file in files:
+	if file.startswith('.'):
+		del files[files.index(file)]
 
 amount_done = 0
-for image in files[:500]:
+for image in files[:200]:
 	new_image = mpimg.imread(folder_name + '/' + image)
-	cropped_image = new_image[150:1065][240:400]
-	data.append(cropped_image)
+	cropped_image = new_image[228:710, 244:1410]
+	# cropped_image = new_image[610:710, 1310:1410]
+	
+	conversion_array = get_conversion_grayscale(new_image)
+	# greyscale_cropped_image = convert_to_greyscale(cropped_image, conversion_array)
+	greyscale_cropped_image = rgb2gray(cropped_image, conversion_array)
+
+	# plt.subplot(2,1,1)
+	# imgplot = plt.imshow(greyscale_cropped_image, cmap='gray')
+
+	# plt.subplot(2,1,2)
+	# plt.imshow(cropped_image)
+	# plt.show()
+
+	data.append(greyscale_cropped_image)
 	data_target.append(int_code)
 	amount_done = amount_done + 1
 	print str(amount_done) + ' - ' + folder_name
 
 int_code = 1
-folder_name = 'tango'
+folder_name = 'black-metal'
 files = os.listdir(folder_name + '/')
-# print files
+for file in files:
+	if file.startswith('.'):
+		del files[files.index(file)]
 
 amount_done = 0
-for image in files[:500]:
+for image in files[:200]:
 	new_image = mpimg.imread(folder_name + '/' + image)
-	cropped_image = new_image[150:1065][240:400]
-	data.append(cropped_image)
+	cropped_image = new_image[228:710, 244:1410]
+	
+	conversion_array = get_conversion_grayscale(new_image)
+	# greyscale_cropped_image = convert_to_greyscale(cropped_image, conversion_array)
+	greyscale_cropped_image = rgb2gray(cropped_image, conversion_array)
+
+	data.append(greyscale_cropped_image)
 	data_target.append(int_code)
 	amount_done = amount_done + 1
 	print str(amount_done) + ' - ' + folder_name
@@ -54,8 +107,6 @@ shuffle(index_shuf)
 for i in index_shuf:
     data_shuf.append(data[i])
     data_target_shuf.append(data_target[i])
-
-
 
 
 #separate learning and testing date
@@ -94,6 +145,11 @@ accuracy = float(error_counter)/float(total_counter)
 print 'Porcentagem de erros - ' + str(accuracy*100) + '%'
 accuracy = 100 - (accuracy*100)
 print 'Porcentagem de acertos - ' + str(accuracy) + '%'
+
+
+
+
+
 
 # print 'Now saving classifier...'
 # save the classifier
