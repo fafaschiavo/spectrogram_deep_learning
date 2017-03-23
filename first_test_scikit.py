@@ -9,6 +9,16 @@ import time
 from sklearn import datasets, svm, metrics
 from sklearn.datasets import load_sample_image
 
+def crop_grayscale_flatten_conversion(image_to_convert):
+	cropped_image = image_to_convert[228:710, 244:1410]
+	
+	conversion_array = get_conversion_grayscale(image_to_convert)
+	greyscale_cropped_image = rgb2gray(cropped_image, conversion_array)
+	data = greyscale_cropped_image
+	data = np.asarray(data)
+	data = data.reshape((1, -1))
+	return data
+
 def get_conversion_grayscale(new_image):
 	a = np.array([new_image[148][1515][:3], new_image[606][1515][:3], new_image[1065][1515][:3]])
 	b = np.array([1, 0.5, 0])
@@ -41,6 +51,8 @@ def rgb2gray(cropped_image, conversion_array):
 
 start_time = time.time()
 
+number_of_samples = 300
+
 data_target = []
 data = []
 
@@ -48,11 +60,11 @@ int_code = 0
 folder_name = 'tango'
 files = os.listdir(folder_name + '/')
 for file in files:
-	if file.startswith('.'):
+	if file.startswith('.') or '.png' not in file:
 		del files[files.index(file)]
 
 amount_done = 0
-for image in files[:200]:
+for image in files[:number_of_samples]:
 	new_image = mpimg.imread(folder_name + '/' + image)
 	cropped_image = new_image[228:710, 244:1410]
 	# cropped_image = new_image[610:710, 1310:1410]
@@ -77,11 +89,11 @@ int_code = 1
 folder_name = 'black-metal'
 files = os.listdir(folder_name + '/')
 for file in files:
-	if file.startswith('.'):
+	if file.startswith('.') or '.png' not in file:
 		del files[files.index(file)]
 
 amount_done = 0
-for image in files[:200]:
+for image in files[:number_of_samples]:
 	new_image = mpimg.imread(folder_name + '/' + image)
 	cropped_image = new_image[228:710, 244:1410]
 	
@@ -126,7 +138,7 @@ testing_target_data = data_target_shuf[n_samples/2:]
 
 
 
-classifier = svm.SVC(gamma=0.001, verbose=True)
+classifier = svm.SVC(gamma=0.001, verbose=True, C=100)
 print 'Fitting...'
 classifier.fit(learning_data, target_data)
 print 'Predicting...'
@@ -147,8 +159,41 @@ accuracy = 100 - (accuracy*100)
 print 'Porcentagem de acertos - ' + str(accuracy) + '%'
 
 
+my_own_test_image = mpimg.imread('samples' + '/' + 'black_metal_0AE1wd4ZOIDl1GpO8EBQfp.png')
+my_own_test_image = crop_grayscale_flatten_conversion(my_own_test_image)
+print 'black_metal_0AE1wd4ZOIDl1GpO8EBQfp.png'
+print 'prediction:'
+print classifier.predict(my_own_test_image)
 
+my_own_test_image = mpimg.imread('samples' + '/' + 'black_metal_0AharcdMp1s3BgYTmfLzBo.png')
+my_own_test_image = crop_grayscale_flatten_conversion(my_own_test_image)
+print 'black_metal_0AharcdMp1s3BgYTmfLzBo.png'
+print 'prediction:'
+print classifier.predict(my_own_test_image)
 
+my_own_test_image = mpimg.imread('samples' + '/' + 'black_metal_0AnfcHtCViS8FWZmzUK6fZ.png')
+my_own_test_image = crop_grayscale_flatten_conversion(my_own_test_image)
+print 'black_metal_0AnfcHtCViS8FWZmzUK6fZ.png'
+print 'prediction:'
+print classifier.predict(my_own_test_image)
+
+my_own_test_image = mpimg.imread('samples' + '/' + 'tango_0B9veKH2yIJnM2a78lWYwg.png')
+my_own_test_image = crop_grayscale_flatten_conversion(my_own_test_image)
+print 'tango_0B9veKH2yIJnM2a78lWYwg.png'
+print 'prediction:'
+print classifier.predict(my_own_test_image)
+
+my_own_test_image = mpimg.imread('samples' + '/' + 'tango_0ahYxXxa7BeyihIkGGlYcs.png')
+my_own_test_image = crop_grayscale_flatten_conversion(my_own_test_image)
+print 'tango_0ahYxXxa7BeyihIkGGlYcs.png'
+print 'prediction:'
+print classifier.predict(my_own_test_image)
+
+my_own_test_image = mpimg.imread('samples' + '/' + 'tango_0b8qyxnbWOxO4a08Z2TY0X.png')
+my_own_test_image = crop_grayscale_flatten_conversion(my_own_test_image)
+print 'tango_0b8qyxnbWOxO4a08Z2TY0X.png'
+print 'prediction:'
+print classifier.predict(my_own_test_image)
 
 
 # print 'Now saving classifier...'
