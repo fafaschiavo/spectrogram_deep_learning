@@ -15,17 +15,14 @@ import subprocess
 def graph_spectrogram(wav_file, spectrogram_file_name, spectrogram_folder_name):
     sound_info, frame_rate = get_wav_info(wav_file)
     fig = pylab.figure(num=None, figsize=(19, 12))
-    pylab.subplot(111)
+    my_subplot = pylab.subplot(111)
+    my_subplot.set_yscale('symlog')
+    my_subplot.set_ylim(bottom=20, top=10000)
     pylab.title('spectrogram of %r' % wav_file)
-    pxx,  freq, t, cax = pylab.specgram(sound_info, Fs=frame_rate)
+    pxx,  freq, t, cax = pylab.specgram(sound_info, Fs=frame_rate, NFFT=8192) #NFFT 4096 standard
     fig.colorbar(cax).set_label('Intensity [dB]')
     pylab.savefig(spectrogram_folder_name + '/' + spectrogram_file_name + '.png')
     pylab.close('all')
-
-    # plt.specgram(sound_info, Fs=frame_rate)
-    # plt.savefig(spectrogram_folder_name + '/' + spectrogram_file_name + '-matplotlib.png')
-    # plt.close('all')
-
 
 def get_wav_info(wav_file):
     wav = wave.open(wav_file, 'r')
@@ -77,16 +74,16 @@ success_counter = 0
 request_counter = 0
 url_fail_data = 0
 file_already_exists = 0
-while success_counter < 2:
+while success_counter < 1100:
 
     client_credentials_manager = SpotifyClientCredentials(client_id='f8acc77f824346b3bb9b22fbdd200b5e', client_secret='40e4388e11844b11981f9d3edb597b0f')
     spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
     spotify.trace=False
 
-    genre_to_mine = 'metal'
+    genre_to_mine = 'tango'
     folder_name = genre_to_mine
     genre_string = [folder_name]
-    recommendations_genres = spotify.recommendations(seed_genres=genre_string, limit=1)
+    recommendations_genres = spotify.recommendations(seed_genres=genre_string, limit=100)
     request_counter = request_counter + 1
     print "Numero de requisicoes - " + str(request_counter)
     print "Numero de fails URL - " + str(url_fail_data)
