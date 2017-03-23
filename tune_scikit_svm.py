@@ -8,6 +8,7 @@ import time
 
 from sklearn import datasets, svm, metrics
 from sklearn.datasets import load_sample_image
+from sklearn.metrics import f1_score
 
 def crop_grayscale_flatten_conversion(image_to_convert):
 	cropped_image = image_to_convert[228:710, 244:1410]
@@ -51,7 +52,7 @@ def rgb2gray(cropped_image, conversion_array):
 
 start_time = time.time()
 
-number_of_samples = 10 #number oof samples for EACH CLASS!
+number_of_samples = 200 #number oof samples for EACH CLASS!
 precentage_of_learning = 0.75
 
 data_target = []
@@ -171,97 +172,59 @@ for i in index_shuf:
 
 
 
+# param_grid = [
+#   {'C': [1, 10, 100, 1000], 'kernel': ['linear']},
+#   {'C': [1, 10, 100, 1000], 'gamma': [0.001, 0.0001], 'kernel': ['rbf']},
+#  ]
 
+param_grid = [
+  {'C': [1, 100], 'gamma': [0.0001, 0.00001, 0.000001, 0.000001]},
+ ]
 
-classifier = svm.SVC(gamma=0.001, verbose=True, C=100)
-print 'Fitting...'
-classifier.fit(learning_data_shuffle, target_data_shuffle)
-print 'Predicting...'
-predicted_data = classifier.predict(testing_data)
+final_result_array = []
+final_result_counter = 0
+results_array = {'C': 0, 'gamma': 0, 'accuracy': 0, 'f1': 0}
+for x in param_grid:
+	for current_C in x['C']:
+		for current_gamma in x['gamma']:
+			print 'Testing C = ' + str(current_C)
+			print 'Testing gammma = ' + str(current_gamma)
 
-error_counter = 0
-total_counter = 0
-for index in predicted_data:
-	if predicted_data[total_counter] != testing_target_data[total_counter]:
-		error_counter = error_counter + 1
-	total_counter = total_counter + 1
+			classifier = svm.SVC(C=current_C, gamma=current_gamma, verbose=True)
+			print 'Fitting...'
+			classifier.fit(learning_data_shuffle, target_data_shuffle)
+			print 'Predicting...'
+			predicted_data = classifier.predict(testing_data)
 
-accuracy = float(error_counter)/float(total_counter)
-print 'Porcentagem de erros - ' + str(accuracy*100) + '%'
-accuracy = 100 - (accuracy*100)
-print 'Porcentagem de acertos - ' + str(accuracy) + '%'
+			error_counter = 0
+			total_counter = 0
+			for index in predicted_data:
+				if predicted_data[total_counter] != testing_target_data[total_counter]:
+					error_counter = error_counter + 1
+				total_counter = total_counter + 1
 
+			accuracy = float(error_counter)/float(total_counter)
+			print 'Porcentagem de erros - ' + str(accuracy*100) + '%'
+			accuracy = 100 - (accuracy*100)
+			print 'Porcentagem de acertos - ' + str(accuracy) + '%'
 
+			print "Classification report for classifier %s:\n%s\n" % (classifier, metrics.classification_report(testing_target_data, predicted_data))
+			print "Confusion matrix:\n%s" % metrics.confusion_matrix(testing_target_data, predicted_data)
+			print 'Testing C = ' + str(current_C)
+			print 'Testing gammma = ' + str(current_gamma)
+			print '----------------------------------------------------------------------------------------------------'
+			results_array['C'] = current_C
+			results_array['gamma'] = current_gamma
+			results_array['accuracy'] = '%.2f'%(accuracy)
+			results_array['f1'] = f1_score(testing_target_data, predicted_data, average='macro')
+			results_array['f1'] = '%.2f'%(results_array['f1'])
+			final_result_array.append(final_result_counter)
+			final_result_array[final_result_counter] = results_array.copy()
+			final_result_counter = final_result_counter + 1
 
-
-print "Classification report for classifier %s:\n%s\n" % (classifier, metrics.classification_report(testing_target_data, predicted_data))
-print "Confusion matrix:\n%s" % metrics.confusion_matrix(testing_target_data, predicted_data)
-
-
-
-
-my_own_test_image = mpimg.imread('samples' + '/' + 'black_metal_0AE1wd4ZOIDl1GpO8EBQfp.png')
-my_own_test_image = crop_grayscale_flatten_conversion(my_own_test_image)
-print 'black_metal_0AE1wd4ZOIDl1GpO8EBQfp.png'
-print 'prediction:'
-print classifier.predict(my_own_test_image)
-
-my_own_test_image = mpimg.imread('samples' + '/' + 'black_metal_0AharcdMp1s3BgYTmfLzBo.png')
-my_own_test_image = crop_grayscale_flatten_conversion(my_own_test_image)
-print 'black_metal_0AharcdMp1s3BgYTmfLzBo.png'
-print 'prediction:'
-print classifier.predict(my_own_test_image)
-
-my_own_test_image = mpimg.imread('samples' + '/' + 'black_metal_0AnfcHtCViS8FWZmzUK6fZ.png')
-my_own_test_image = crop_grayscale_flatten_conversion(my_own_test_image)
-print 'black_metal_0AnfcHtCViS8FWZmzUK6fZ.png'
-print 'prediction:'
-print classifier.predict(my_own_test_image)
-
-my_own_test_image = mpimg.imread('samples' + '/' + 'tango_0B9veKH2yIJnM2a78lWYwg.png')
-my_own_test_image = crop_grayscale_flatten_conversion(my_own_test_image)
-print 'tango_0B9veKH2yIJnM2a78lWYwg.png'
-print 'prediction:'
-print classifier.predict(my_own_test_image)
-
-my_own_test_image = mpimg.imread('samples' + '/' + 'tango_0ahYxXxa7BeyihIkGGlYcs.png')
-my_own_test_image = crop_grayscale_flatten_conversion(my_own_test_image)
-print 'tango_0ahYxXxa7BeyihIkGGlYcs.png'
-print 'prediction:'
-print classifier.predict(my_own_test_image)
-
-my_own_test_image = mpimg.imread('samples' + '/' + 'tango_0b8qyxnbWOxO4a08Z2TY0X.png')
-my_own_test_image = crop_grayscale_flatten_conversion(my_own_test_image)
-print 'tango_0b8qyxnbWOxO4a08Z2TY0X.png'
-print 'prediction:'
-print classifier.predict(my_own_test_image)
-
-my_own_test_image = mpimg.imread('samples' + '/' + 'jazz_0ADAFZE0bYIuaIyPNFl3LE.png')
-my_own_test_image = crop_grayscale_flatten_conversion(my_own_test_image)
-print 'jazz_0ADAFZE0bYIuaIyPNFl3LE.png'
-print 'prediction:'
-print classifier.predict(my_own_test_image)
-
-my_own_test_image = mpimg.imread('samples' + '/' + 'jazz_0AEBs3sZ492afceldzJzF0.png')
-my_own_test_image = crop_grayscale_flatten_conversion(my_own_test_image)
-print 'jazz_0AEBs3sZ492afceldzJzF0.png'
-print 'prediction:'
-print classifier.predict(my_own_test_image)
-
-my_own_test_image = mpimg.imread('samples' + '/' + 'jazz_0aWMVrwxPNYkKmFthzmpRi.png')
-my_own_test_image = crop_grayscale_flatten_conversion(my_own_test_image)
-print 'jazz_0aWMVrwxPNYkKmFthzmpRi.png'
-print 'prediction:'
-print classifier.predict(my_own_test_image)
-
-
-# print 'Now saving classifier...'
-# save the classifier
-# with open('classifiers/my_dumped_classifier_001_100.pkl', 'wb') as file_to_save:
-#     cPickle.dump(classifier, file_to_save)
-    
-# print 'Save completed'
-
+for tune_result in final_result_array:
+	print tune_result
+	print '\n'
 
 
 
