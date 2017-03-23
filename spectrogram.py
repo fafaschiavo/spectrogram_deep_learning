@@ -1,14 +1,16 @@
 import os
 import wave
-
+import time
 import pylab
 
 #ID f8acc77f824346b3bb9b22fbdd200b5e
 #SECRET 40e4388e11844b11981f9d3edb597b0f
 
+start_time = time.time()
+
 def graph_spectrogram(wav_file, spectrogram_file_name, spectrogram_folder_name):
     sound_info, frame_rate = get_wav_info(wav_file)
-    fig = pylab.figure(num=None, figsize=(19, 12))
+    fig = pylab.figure(num=None, figsize=(19, 12), dpi=500)
     my_subplot = pylab.subplot(111)
     my_subplot.set_yscale('symlog')
     my_subplot.set_ylim(bottom=20, top=10000)
@@ -41,8 +43,8 @@ def get_wav_info(wav_file):
 
 wav_file = 'samba/3JAnxdVlMLo27vasMzMdPk.wav'
 # wav_file = 'samba/metal.wav'
-graph_spectrogram(wav_file, 'samba_tuning_spectrogram', 'samba')
+graph_spectrogram(wav_file, 'samba_tuning_spectrogram2', 'samba')
 
-
+print("--- %s seconds ---" % (time.time() - start_time))
 
 
