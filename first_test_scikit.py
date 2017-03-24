@@ -8,6 +8,11 @@ import time
 
 from sklearn import datasets, svm, metrics
 from sklearn.datasets import load_sample_image
+from sklearn.linear_model import LinearRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.tree import DecisionTreeClassifier
 
 def crop_grayscale_flatten_conversion(image_to_convert):
 	cropped_image = image_to_convert[228:710, 244:1410]
@@ -51,7 +56,7 @@ def rgb2gray(cropped_image, conversion_array):
 
 start_time = time.time()
 
-number_of_samples = 10 #number oof samples for EACH CLASS!
+number_of_samples = 400 #number oof samples for EACH CLASS!
 precentage_of_learning = 0.75
 
 data_target = []
@@ -172,8 +177,12 @@ for i in index_shuf:
 
 
 
-
-classifier = svm.SVC(gamma=0.001, verbose=True, C=100)
+# classifier = LinearRegression()
+# classifier = KNeighborsClassifier(n_jobs = -1, n_neighbors=2)
+# classifier = DecisionTreeClassifier() #Acertou todos as samples individuais - 68% accuracy
+# classifier = RandomForestClassifier() #Acertou todos as samples individuais - 72% accuracy
+classifier = ExtraTreesClassifier(n_jobs = -1) #Acertou todos as samples individuais - 79% accuracy (numero de samples aumentou 5%/100 samples a acc)
+# classifier = svm.SVC(gamma=0.001, verbose=True, C=100)
 print 'Fitting...'
 classifier.fit(learning_data_shuffle, target_data_shuffle)
 print 'Predicting...'
