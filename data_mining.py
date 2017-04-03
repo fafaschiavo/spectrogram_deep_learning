@@ -80,7 +80,7 @@ while success_counter < 1100:
     spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
     spotify.trace=False
 
-    genre_to_mine = 'tango'
+    genre_to_mine = 'rock'
     folder_name = genre_to_mine
     genre_string = [folder_name]
     recommendations_genres = spotify.recommendations(seed_genres=genre_string, limit=100)

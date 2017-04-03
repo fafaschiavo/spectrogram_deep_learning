@@ -1,6 +1,6 @@
 import os
 import cPickle
-from random import shuffle
+from random import shuffle, seed
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
@@ -52,7 +52,7 @@ def rgb2gray(cropped_image, conversion_array):
 
 start_time = time.time()
 
-number_of_samples = 200 #number oof samples for EACH CLASS!
+number_of_samples =200 #number oof samples for EACH CLASS!
 precentage_of_learning = 0.75
 
 data_target = []
@@ -77,6 +77,10 @@ for image in files[:number_of_samples]:
 	
 	conversion_array = get_conversion_grayscale(new_image)
 	greyscale_cropped_image = rgb2gray(cropped_image, conversion_array)
+
+	original_size_for_normalization = greyscale_cropped_image.shape[1]
+	greyscale_cropped_image = np.sum(greyscale_cropped_image, axis=1)
+	greyscale_cropped_image = greyscale_cropped_image/original_size_for_normalization
 
 	# plt.subplot(2,1,1)
 	# imgplot = plt.imshow(greyscale_cropped_image, cmap='gray')
@@ -112,6 +116,10 @@ for image in files[:number_of_samples]:
 	conversion_array = get_conversion_grayscale(new_image)
 	greyscale_cropped_image = rgb2gray(cropped_image, conversion_array)
 
+	original_size_for_normalization = greyscale_cropped_image.shape[1]
+	greyscale_cropped_image = np.sum(greyscale_cropped_image, axis=1)
+	greyscale_cropped_image = greyscale_cropped_image/original_size_for_normalization
+
 	if amount_done < number_of_samples*precentage_of_learning:
 		learning_data.append(greyscale_cropped_image)
 		target_data.append(int_code)
@@ -139,6 +147,10 @@ for image in files[:number_of_samples]:
 	conversion_array = get_conversion_grayscale(new_image)
 	greyscale_cropped_image = rgb2gray(cropped_image, conversion_array)
 
+	original_size_for_normalization = greyscale_cropped_image.shape[1]
+	greyscale_cropped_image = np.sum(greyscale_cropped_image, axis=1)
+	greyscale_cropped_image = greyscale_cropped_image/original_size_for_normalization
+
 	if amount_done < number_of_samples*precentage_of_learning:
 		learning_data.append(greyscale_cropped_image)
 		target_data.append(int_code)
@@ -152,7 +164,39 @@ for image in files[:number_of_samples]:
 	print str(amount_done) + ' - ' + folder_name
 
 
+int_code = 3
+folder_name = 'rock'
+files = os.listdir(folder_name + '/')
+for file in files:
+	if file.startswith('.') or '.png' not in file:
+		del files[files.index(file)]
 
+amount_done = 0
+for image in files[:number_of_samples]:
+	new_image = mpimg.imread(folder_name + '/' + image)
+	cropped_image = new_image[228:710, 244:1410]
+	
+	conversion_array = get_conversion_grayscale(new_image)
+	greyscale_cropped_image = rgb2gray(cropped_image, conversion_array)
+
+	# print greyscale_cropped_image
+	# print greyscale_cropped_image.shape[1]
+	original_size_for_normalization = greyscale_cropped_image.shape[1]
+	greyscale_cropped_image = np.sum(greyscale_cropped_image, axis=1)
+	greyscale_cropped_image = greyscale_cropped_image/original_size_for_normalization
+	# print greyscale_cropped_image
+
+	if amount_done < number_of_samples*precentage_of_learning:
+		learning_data.append(greyscale_cropped_image)
+		target_data.append(int_code)
+	else:
+		testing_data.append(greyscale_cropped_image)
+		testing_target_data.append(int_code)
+
+	# data.append(greyscale_cropped_image)
+	# data_target.append(int_code)
+	amount_done = amount_done + 1
+	print str(amount_done) + ' - ' + folder_name
 
 n_samples = len(learning_data)
 learning_data = np.asarray(learning_data)
@@ -165,6 +209,7 @@ testing_data = testing_data.reshape((n_samples, -1))
 learning_data_shuffle = []
 target_data_shuffle = []
 index_shuf = range(len(learning_data))
+seed(a=13)
 shuffle(index_shuf)
 for i in index_shuf:
     learning_data_shuffle.append(learning_data[i])
@@ -172,25 +217,32 @@ for i in index_shuf:
 
 
 
-# param_grid = [
-#   {'C': [1, 10, 100, 1000], 'kernel': ['linear']},
-#   {'C': [1, 10, 100, 1000], 'gamma': [0.001, 0.0001], 'kernel': ['rbf']},
-#  ]
-
 param_grid = [
-  {'C': [1, 100], 'gamma': [0.0001, 0.00001, 0.000001, 0.000001]},
+  {'C': [1, 10, 100, 1000], 'kernel': ['linear'], 'gamma': [0.0003]},
+  # {'C': [1, 10, 100, 1000], 'kernel': ['polynomial'], 'gamma': [0.0003]},
+  {'C': [1, 10, 100, 1000], 'kernel': ['sigmoid'], 'gamma': [0.0003]},
+  {'C': [1000, 100, 10, 1, 0.1, 0.01, 0.001], 'gamma': [10, 1, 0.1, 0.01, 0.001, 0.0001], 'kernel': ['rbf']},
  ]
+
+# param_grid = [
+#   {'C': [1], 'gamma': [0.0001, 0.0003, 0.0005, 0.0007]},
+#  ]
 
 final_result_array = []
 final_result_counter = 0
-results_array = {'C': 0, 'gamma': 0, 'accuracy': 0, 'f1': 0}
+results_array = {'C': 0, 'gamma': 0, 'accuracy': 0, 'f1': 0, 'kernel': 0}
 for x in param_grid:
 	for current_C in x['C']:
 		for current_gamma in x['gamma']:
 			print 'Testing C = ' + str(current_C)
 			print 'Testing gammma = ' + str(current_gamma)
+			if 'kernel' in x:
+				new_kernel = x['kernel']
+			else:
+				print 'No custom kernel'
+				new_kernel = 'rbf'
 
-			classifier = svm.SVC(C=current_C, gamma=current_gamma, verbose=True)
+			classifier = svm.SVC(C=current_C, gamma=current_gamma, verbose=True, kernel=new_kernel[0])
 			print 'Fitting...'
 			classifier.fit(learning_data_shuffle, target_data_shuffle)
 			print 'Predicting...'
@@ -214,6 +266,7 @@ for x in param_grid:
 			print 'Testing gammma = ' + str(current_gamma)
 			print '----------------------------------------------------------------------------------------------------'
 			results_array['C'] = current_C
+			results_array['kernel'] = new_kernel
 			results_array['gamma'] = current_gamma
 			results_array['accuracy'] = '%.2f'%(accuracy)
 			results_array['f1'] = f1_score(testing_target_data, predicted_data, average='macro')
